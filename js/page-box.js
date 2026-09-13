@@ -1,10 +1,15 @@
 // ============================================================
 //  PAGE-BOX.JS — Little Box reveal page (page 7)
+//  Menampilkan 1 foto (photo2) ukuran sedang saat kotak dibuka
 // ============================================================
-import { photos } from './data.js';
 import { launchConfetti } from './app.js';
 
 let boxOpened = false;
+
+const FEATURED_PHOTO = {
+  src: 'assets/photos/photo2.jpeg',
+  caption: 'still surviving, still iconic. 🌿',
+};
 
 export function initBox() {
   window.addEventListener('enter-box', () => {
@@ -21,7 +26,7 @@ export function initBox() {
       if (boxOpened) return;
       boxOpened = true;
 
-      // box shake + change emoji
+      // box shake + ganti emoji
       mysteryBox.style.animation = 'none';
       mysteryBox.style.transform = 'scale(1.2) rotate(10deg)';
       setTimeout(() => {
@@ -33,48 +38,51 @@ export function initBox() {
         mysteryBox.style.display = 'none';
         if (boxLabel) boxLabel.style.display = 'none';
         boxReveal.style.display = 'block';
-        renderMemoryCards();
+        renderFeaturedPhoto();
         launchConfetti();
       }, 600);
     }
   });
 }
 
-function renderMemoryCards() {
+function renderFeaturedPhoto() {
   const container = document.getElementById('memory-cards');
-  const placeholderEmojis = ['🌸', '💫', '✨', '🎀', '⭐', '💗'];
 
-  photos.forEach((photo, i) => {
-    const card = document.createElement('div');
-    card.className = 'memory-card';
+  // Satu foto ukuran sedang, centered
+  const wrapper = document.createElement('div');
+  wrapper.className = 'featured-photo-wrap';
+  wrapper.style.cssText = `
+    opacity: 0;
+    transform: scale(0.85) translateY(24px);
+    transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin: 0 auto;
+    text-align: center;
+  `;
 
-    // Random small rotation
-    const rot = (Math.random() * 6 - 3).toFixed(1);
-    card.style.transform = `rotate(${rot}deg) scale(0.8) translateY(20px)`;
-
-    card.innerHTML = `
+  wrapper.innerHTML = `
+    <div class="featured-polaroid">
       <img
-        src="${photo.src}"
-        alt="Memory ${i + 1}"
+        src="${FEATURED_PHOTO.src}"
+        alt="Bocil"
         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
       />
-      <div class="photo-placeholder" style="display:none;">${placeholderEmojis[i % placeholderEmojis.length]}</div>
-      <span class="memory-caption">${photo.closingCaption}</span>
-    `;
+      <div class="photo-placeholder featured-placeholder" style="display:none;">🌸</div>
+      <p class="featured-caption accent">${FEATURED_PHOTO.caption}</p>
+    </div>
+  `;
 
-    container.appendChild(card);
+  container.appendChild(wrapper);
 
-    // Staggered reveal
-    setTimeout(() => {
-      card.classList.add('show');
-      card.style.transform = `rotate(${rot}deg)`;
-    }, 300 + i * 280);
-  });
-
-  // Show closing message after all cards
-  const closingDelay = 400 + photos.length * 280 + 400;
+  // Animate in
   setTimeout(() => {
-    document.getElementById('closing-message').style.opacity = '1';
-    document.getElementById('closing-message').style.transform = 'translateY(0)';
-  }, closingDelay);
+    wrapper.style.opacity = '1';
+    wrapper.style.transform = 'scale(1) translateY(0)';
+  }, 350);
+
+  // Show closing message after photo appears
+  setTimeout(() => {
+    const msg = document.getElementById('closing-message');
+    msg.style.opacity = '1';
+    msg.style.transform = 'translateY(0)';
+  }, 1100);
 }
